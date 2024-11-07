@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --dashboard: rgba(228, 228, 230, 0.5);
+  --borderlines: rgba(0, 0, 0, 0.2);
+}
+
+.container {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  grid-template-rows: 14fr 1fr;
+  grid-template-columns: 1fr 4fr;
+}
+
+#dashboard {
+  background-color: var(--dashboard);
+  grid-row: 1;
+  grid-column: 1;
+  border-bottom: 0.5px solid var(--borderlines);
+  border-right: 0.5px solid var(--borderlines);
+}
+
+#dashboard__controls {
+  background-color: var(--dashboard);
+  grid-row: 2;
+  grid-column: 1;
+  border-top: 0.5px solid var(--borderlines);
+  border-right: 0.5px solid var(--borderlines);
+}
+
+#workspace {
+  background-color: white;
+  grid-row: 1;
+  grid-column: 2;
+  border-bottom: 0.5px solid var(--borderlines);
+  border-left: 0.5px solid var(--borderlines);
+}
+
+#workspace__controls {
+  background-color: white;
+  grid-row: 2;
+  grid-column: 2;
+  border-top: 0.5px solid var(--borderlines);
+  border-left: 0.5px solid var(--borderlines);
+}
