@@ -23,6 +23,7 @@
   grid-column: 1;
   border-bottom: 0.5px solid var(--borderlines);
   border-right: 0.5px solid var(--borderlines);
+  padding: 20px 0 0 20px;
 }
 
 #dashboard__controls {
@@ -47,4 +48,18 @@
   grid-column: 2;
   border-top: 0.5px solid var(--borderlines);
   border-left: 0.5px solid var(--borderlines);
+}
+
+/* Dashboard Entries */
+.proj {
+  width: 70%;
+}
+
+.proj p,
+.indProj {
+  margin: 10px 0 0 15px;
+}
+
+.renameProj {
+  width: 125%;
 }
