@@ -51,6 +51,23 @@
 }
 
 /* Dashboard Entries */
+
+.titleCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 135%;
+}
+
+.titleCard img {
+  height: 30px;
+  width: 30px;
+}
+
+.titleCard img:hover {
+  cursor: pointer;
+}
+
 .proj {
   width: 70%;
 }
@@ -58,6 +75,7 @@
 .proj p,
 .indProj {
   margin: 10px 0 0 15px;
+  width: 100%;
 }
 
 .renameProj {
