@@ -68,12 +68,6 @@ export default (function (projects) {
       projInput.classList.add("indProj");
 
     projInput.addEventListener("focusout", convertBack);
-    projInput.addEventListener("keydown", function (event) {
-      if (event.key == "Enter") {
-        event.preventDefault();
-        convertBack.call(projInput);
-      }
-    });
     this.parentNode.replaceChild(projInput, this);
 
     projInput.focus(); // this makes it focus nicely
