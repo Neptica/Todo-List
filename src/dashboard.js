@@ -21,10 +21,10 @@ export default (function (projects) {
       const addMore = document.createElement("img");
 
       addMore.src = plus;
-      addMore.addEventListener("click", insertInput);
+      addMore.addEventListener("click", insertInputNode);
       projTitle.textContent = project;
       projTitle.dataset.elementType = "h1";
-      projTitle.addEventListener("dblclick", changeToInput);
+      projTitle.addEventListener("dblclick", changeTextToInput);
       titleCard.classList.add("titleCard");
 
       titleCard.appendChild(projTitle);
@@ -35,29 +35,26 @@ export default (function (projects) {
         const iProjDiv = document.createElement("p");
         iProjDiv.textContent = iProject;
         iProjDiv.dataset.elementType = "p";
-        iProjDiv.addEventListener("dblclick", changeToInput);
+        iProjDiv.addEventListener("dblclick", changeTextToInput);
         projDiv.appendChild(iProjDiv);
       }
       dash.appendChild(projDiv);
     }
   }
 
-  function insertInput() {
+  function insertInputNode() {
     const projInput = document.createElement("input");
     projInput.classList.add("indProj");
     projInput.dataset.elementType = "p";
 
     projInput.addEventListener("focusout", convertBack);
-    projInput.addEventListener("keypress", function (event) {
-      if (event.key == "Enter") convertBack.call(projInput);
-    });
 
     this.parentNode.after(projInput);
 
     projInput.focus(); // this makes it focus nicely
   }
 
-  function changeToInput() {
+  function changeTextToInput() {
     let currentTitle = this.textContent;
 
     const projInput = document.createElement("input");
@@ -69,9 +66,13 @@ export default (function (projects) {
     projInput.dataset.oldText = currentTitle;
     if (projInput.dataset.elementType == "p")
       projInput.classList.add("indProj");
+
     projInput.addEventListener("focusout", convertBack);
-    projInput.addEventListener("keypress", function (event) {
-      if (event.key == "Enter") convertBack.call(projInput);
+    projInput.addEventListener("keydown", function (event) {
+      if (event.key == "Enter") {
+        event.preventDefault();
+        convertBack.call(projInput);
+      }
     });
     this.parentNode.replaceChild(projInput, this);
 
@@ -79,6 +80,7 @@ export default (function (projects) {
   }
 
   function convertBack() {
+    const parent = this.parentNode;
     let currentTitle = this.value;
     if (currentTitle == "") {
       if (typeof this.dataset.oldText === "undefined") {
@@ -89,6 +91,7 @@ export default (function (projects) {
       console.log(this.dataset.oldText);
       currentTitle = this.dataset.oldText;
     }
+    if (!parent.contains(this)) return;
 
     const currentType = this.dataset.elementType;
 
@@ -96,7 +99,7 @@ export default (function (projects) {
 
     projTitle.textContent = currentTitle;
     projTitle.dataset.elementType = this.dataset.elementType;
-    projTitle.addEventListener("dblclick", changeToInput);
+    projTitle.addEventListener("dblclick", changeTextToInput);
     this.parentNode.replaceChild(projTitle, this);
   }
 
