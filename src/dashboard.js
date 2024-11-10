@@ -1,9 +1,11 @@
 import check from "./svg/check.svg";
 import plus from "./svg/plus.svg";
+import setting from "./svg/tune.svg";
 
 export default (function (projects) {
   function init() {
     renderDashboard();
+    renderTaskDash();
   }
 
   function renderDashboard() {
@@ -96,6 +98,35 @@ export default (function (projects) {
     projTitle.dataset.elementType = this.dataset.elementType;
     projTitle.addEventListener("dblclick", changeToInput);
     this.parentNode.replaceChild(projTitle, this);
+  }
+
+  function renderTaskDash() {
+    const taskControl = document.getElementById("dashboard__controls");
+    const newCard = document.createElement("div");
+    const add = document.createElement("img");
+    add.src = plus;
+    const newList = document.createElement("p");
+    newList.textContent = "New List";
+    const settings = document.createElement("img");
+    settings.src = setting;
+    settings.style.cursor = "pointer";
+    settings.addEventListener("click", displayRemoveButtons);
+
+    newCard.appendChild(add);
+    newCard.appendChild(newList);
+    newCard.style.cursor = "pointer";
+    newCard.addEventListener("click", newProject);
+
+    taskControl.appendChild(newCard);
+    taskControl.appendChild(settings);
+  }
+
+  function newProject() {
+    console.log("hi");
+  }
+
+  function displayRemoveButtons() {
+    console.log("Hi");
   }
 
   init();

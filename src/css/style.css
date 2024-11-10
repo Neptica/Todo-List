@@ -14,7 +14,7 @@
   width: 100vw;
   display: grid;
   grid-template-rows: 14fr 1fr;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: minmax(250px, auto) 4fr;
 }
 
 #dashboard {
@@ -23,7 +23,7 @@
   grid-column: 1;
   border-bottom: 0.5px solid var(--borderlines);
   border-right: 0.5px solid var(--borderlines);
-  padding: 20px 0 0 20px;
+  padding: 10px 0;
 }
 
 #dashboard__controls {
@@ -32,6 +32,12 @@
   grid-column: 1;
   border-top: 0.5px solid var(--borderlines);
   border-right: 0.5px solid var(--borderlines);
+
+  /* Other Styling */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
 }
 
 #workspace {
@@ -52,11 +58,21 @@
 
 /* Dashboard Entries */
 
+.proj {
+  padding: 10px 10px 10px 20px;
+  width: 100%;
+}
+
+.proj p,
+.indProj {
+  margin-left: 15px;
+  padding: 5px 0;
+}
+
 .titleCard {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 135%;
 }
 
 .titleCard img {
@@ -68,16 +84,20 @@
   cursor: pointer;
 }
 
-.proj {
-  width: 70%;
-}
-
-.proj p,
-.indProj {
-  margin: 10px 0 0 15px;
-  width: 100%;
-}
-
+/* TODO: Fix error on inputs larger than the nodes */
 .renameProj {
-  width: 125%;
+  width: 175px;
+}
+
+/* Dash Control Center */
+#dashboard__controls img {
+  height: 30px;
+  width: 30px;
+}
+
+#dashboard__controls div {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  font-size: 1.4rem;
 }
