@@ -1,6 +1,8 @@
 import check from "./svg/check.svg";
 import plus from "./svg/plus.svg";
 import setting from "./svg/tune.svg";
+import close from "./svg/close-circle.svg";
+import done from "./svg/done.png";
 
 export default (function (projects) {
   function init() {
@@ -21,6 +23,7 @@ export default (function (projects) {
       const addMore = document.createElement("img");
 
       addMore.src = plus;
+      addMore.dataset.name = "plus";
       addMore.addEventListener("click", insertInputNode);
       projTitle.textContent = project;
       projTitle.dataset.elementType = "h1";
@@ -51,7 +54,7 @@ export default (function (projects) {
 
     this.parentNode.after(projInput);
 
-    projInput.focus(); // this makes it focus nicely
+    projInput.focus(); // this makes it focus on the box
   }
 
   function changeTextToInput() {
@@ -68,6 +71,7 @@ export default (function (projects) {
     projInput.style.textAlign = getComputedStyle(this).textAlign;
     projInput.style.margin = getComputedStyle(this).margin;
     projInput.style.padding = getComputedStyle(this).padding;
+
     projInput.value = currentTitle;
     projInput.dataset.elementType = this.dataset.elementType;
     projInput.dataset.oldText = currentTitle;
@@ -114,7 +118,8 @@ export default (function (projects) {
     const settings = document.createElement("img");
     settings.src = setting;
     settings.style.cursor = "pointer";
-    settings.addEventListener("click", displayRemoveButtons);
+    settings.dataset.name = "plus";
+    settings.addEventListener("click", changeProjectButtons);
 
     newCard.appendChild(add);
     newCard.appendChild(newList);
@@ -126,11 +131,67 @@ export default (function (projects) {
   }
 
   function newProject() {
-    console.log("hi");
+    const dash = document.getElementById("dashboard");
+    const projDiv = document.createElement("div");
+
+    projDiv.classList.add("proj");
+    const titleCard = document.createElement("div");
+    const projTitle = document.createElement("h1");
+    const addMore = document.createElement("img");
+
+    addMore.src = plus;
+    addMore.addEventListener("click", insertInputNode);
+    projTitle.textContent = "New Project";
+    projTitle.dataset.elementType = "h1";
+    projTitle.addEventListener("dblclick", changeTextToInput);
+    titleCard.classList.add("titleCard");
+
+    titleCard.appendChild(projTitle);
+    titleCard.appendChild(addMore);
+    projDiv.appendChild(titleCard);
+
+    dash.appendChild(projDiv);
   }
 
-  function displayRemoveButtons() {
-    console.log("Hi");
+  function changeProjectButtons() {
+    // Update Dashboard
+    const dash = document.getElementById("dashboard");
+    const currentButtons = dash.querySelectorAll("img");
+    const incomingButton = this.dataset.name;
+
+    for (const button of currentButtons) {
+      const newButton = document.createElement("img");
+
+      if (incomingButton == "plus") {
+        newButton.src = close;
+        newButton.addEventListener("click", removeElement);
+      } else {
+        newButton.src = plus;
+        newButton.addEventListener("click", insertInputNode);
+      }
+
+      button.parentNode.replaceChild(newButton, button);
+    }
+
+    // Switch TaskDash Button
+    const taskDash = document.getElementById("dashboard__controls");
+    const controlButton = document.createElement("img");
+    if (incomingButton == "plus") {
+      controlButton.dataset.name = "check";
+      controlButton.src = done;
+    } else {
+      controlButton.dataset.name = "plus";
+      controlButton.src = setting;
+    }
+    controlButton.style.cursor = "pointer";
+    controlButton.addEventListener("click", changeProjectButtons);
+    taskDash.replaceChild(controlButton, this);
+  }
+
+  function removeElement() {
+    const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
+    projDiv.parentNode.removeChild(projDiv);
+    console.log("HEerelol");
   }
 
   init();

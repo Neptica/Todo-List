@@ -26,7 +26,7 @@
   width: 100vw;
   display: grid;
   grid-template-rows: 14fr 1fr;
-  grid-template-columns: minmax(250px, auto) 4fr;
+  grid-template-columns: clamp(250px, 25%, 300px) 4fr;
 }
 
 #dashboard {
@@ -87,6 +87,10 @@
   align-items: center;
 }
 
+.titleCard h1 {
+  font-size: 1.4rem;
+}
+
 .titleCard img {
   height: 30px;
   width: 30px;
@@ -96,7 +100,7 @@
   cursor: pointer;
 }
 
-/* TODO: Fix error on inputs larger than the nodes */
+/* For Clear Input Boxes */
 .renameProj {
   width: 175px;
   background-color: transparent;
@@ -106,6 +110,17 @@
     system-ui,
     -apple-system;
 }
+
+.indProj {
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-family:
+    system-ui,
+    -apple-system;
+  font-size: 1rem;
+}
+/* For Clear Input Boxes */
 
 /* Dash Control Center */
 #dashboard__controls img {
