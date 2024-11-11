@@ -1,4 +1,3 @@
-import check from "./svg/check.svg";
 import plus from "./svg/plus.svg";
 import setting from "./svg/tune.svg";
 import close from "./svg/close-circle.svg";
@@ -51,6 +50,11 @@ export default (function (projects) {
     projInput.dataset.elementType = "p";
 
     projInput.addEventListener("focusout", convertBack);
+    projInput.addEventListener("keydown", function (e) {
+      if (e.key == "Enter") {
+        this.blur();
+      }
+    });
 
     this.parentNode.after(projInput);
 
@@ -79,6 +83,12 @@ export default (function (projects) {
       projInput.classList.add("indProj");
 
     projInput.addEventListener("focusout", convertBack);
+    projInput.addEventListener("keydown", function (e) {
+      if (e.key == "Enter") {
+        this.blur();
+      }
+    });
+
     this.parentNode.replaceChild(projInput, this);
 
     projInput.focus(); // this makes it focus nicely
@@ -93,7 +103,7 @@ export default (function (projects) {
         return;
       }
 
-      console.log(this.dataset.oldText);
+      // console.log(this.dataset.oldText);
       currentTitle = this.dataset.oldText;
     }
     if (!parent.contains(this)) return;
@@ -191,7 +201,6 @@ export default (function (projects) {
   function removeElement() {
     const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
     projDiv.parentNode.removeChild(projDiv);
-    console.log("HEerelol");
   }
 
   init();
