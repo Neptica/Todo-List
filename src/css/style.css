@@ -7,6 +7,18 @@
 :root {
   --dashboard: rgba(228, 228, 230, 0.5);
   --borderlines: rgba(0, 0, 0, 0.2);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
 }
 
 .container {
@@ -87,6 +99,12 @@
 /* TODO: Fix error on inputs larger than the nodes */
 .renameProj {
   width: 175px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-family:
+    system-ui,
+    -apple-system;
 }
 
 /* Dash Control Center */

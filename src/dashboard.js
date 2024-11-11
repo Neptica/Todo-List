@@ -59,8 +59,15 @@ export default (function (projects) {
 
     const projInput = document.createElement("input");
     projInput.classList.add("renameProj");
+
+    // This Ensures Preexisting Text Doesn't Morph on Tag Change
     projInput.style.fontSize = getComputedStyle(this).fontSize;
     projInput.style.fontWeight = getComputedStyle(this).fontWeight;
+    projInput.style.fontFamily = getComputedStyle(this).fontFamily;
+    projInput.style.lineHeight = getComputedStyle(this).lineHeight;
+    projInput.style.textAlign = getComputedStyle(this).textAlign;
+    projInput.style.margin = getComputedStyle(this).margin;
+    projInput.style.padding = getComputedStyle(this).padding;
     projInput.value = currentTitle;
     projInput.dataset.elementType = this.dataset.elementType;
     projInput.dataset.oldText = currentTitle;
