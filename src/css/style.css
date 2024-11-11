@@ -71,20 +71,23 @@
 /* Dashboard Entries */
 
 .proj {
-  padding: 10px 10px 10px 20px;
+  padding: 10px 20px;
   width: 100%;
 }
 
 .proj p,
 .indProj {
   margin-left: 15px;
-  padding: 5px 0;
+  padding: 5px;
+  border-radius: 10px;
 }
 
 .titleCard {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 5px 10px;
+  border-radius: 10px;
 }
 
 .titleCard h1 {

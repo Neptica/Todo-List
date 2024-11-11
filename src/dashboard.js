@@ -1,11 +1,13 @@
+import content from "./maincontent.js";
 import plus from "./svg/plus.svg";
 import setting from "./svg/tune.svg";
 import close from "./svg/close-circle.svg";
 import done from "./svg/done.png";
 
-export default (function (projects) {
+export default (function (object) {
+  let projects = object.Projects;
   function init() {
-    renderDashboard();
+    if (projects) renderDashboard();
     renderTaskDash();
   }
 
@@ -13,12 +15,14 @@ export default (function (projects) {
     const dash = document.getElementById("dashboard");
     dash.innerHTML = "";
 
-    for (const [project, indProject] of Object.entries(projects)) {
+    for (const [project, indProjects] of Object.entries(projects)) {
       const projDiv = document.createElement("div");
 
       projDiv.classList.add("proj");
       const titleCard = document.createElement("div");
       const projTitle = document.createElement("h1");
+      // Setup Data Link
+      projTitle.dataset.project = project;
       const addMore = document.createElement("img");
 
       addMore.src = plus;
@@ -28,16 +32,22 @@ export default (function (projects) {
       projTitle.dataset.elementType = "h1";
       projTitle.addEventListener("dblclick", changeTextToInput);
       titleCard.classList.add("titleCard");
+      titleCard.addEventListener("click", showContent);
 
       titleCard.appendChild(projTitle);
       titleCard.appendChild(addMore);
       projDiv.appendChild(titleCard);
 
-      for (const [iProject, values] of Object.entries(indProject)) {
+      for (const [iProject, values] of Object.entries(indProjects)) {
         const iProjDiv = document.createElement("p");
+        // Setup Data Link
+        iProjDiv.dataset.project = project;
+        iProjDiv.dataset.subproject = iProject;
+
         iProjDiv.textContent = iProject;
         iProjDiv.dataset.elementType = "p";
         iProjDiv.addEventListener("dblclick", changeTextToInput);
+        iProjDiv.addEventListener("click", showContent);
         projDiv.appendChild(iProjDiv);
       }
       dash.appendChild(projDiv);
@@ -48,6 +58,11 @@ export default (function (projects) {
     const projInput = document.createElement("input");
     projInput.classList.add("indProj");
     projInput.dataset.elementType = "p";
+    projInput.dataset.newNode = "true";
+
+    const project = this.previousSibling.textContent;
+    projInput.dataset.project = project;
+    projInput.dataset.subproject = this.dataset.subproject;
 
     projInput.addEventListener("focusout", convertBack);
     projInput.addEventListener("keydown", function (e) {
@@ -76,11 +91,16 @@ export default (function (projects) {
     projInput.style.margin = getComputedStyle(this).margin;
     projInput.style.padding = getComputedStyle(this).padding;
 
+    // Transfer Data Link
+    projInput.dataset.project = this.dataset.project;
+    projInput.dataset.subproject = this.dataset.subproject;
+
     projInput.value = currentTitle;
     projInput.dataset.elementType = this.dataset.elementType;
     projInput.dataset.oldText = currentTitle;
     if (projInput.dataset.elementType == "p")
       projInput.classList.add("indProj");
+    else this.parentNode.style.backgroundColor = "inherit";
 
     projInput.addEventListener("focusout", convertBack);
     projInput.addEventListener("keydown", function (e) {
@@ -95,7 +115,6 @@ export default (function (projects) {
   }
 
   function convertBack() {
-    const parent = this.parentNode;
     let currentTitle = this.value;
     if (currentTitle == "") {
       if (typeof this.dataset.oldText === "undefined") {
@@ -106,7 +125,6 @@ export default (function (projects) {
       // console.log(this.dataset.oldText);
       currentTitle = this.dataset.oldText;
     }
-    if (!parent.contains(this)) return;
 
     const currentType = this.dataset.elementType;
 
@@ -115,7 +133,33 @@ export default (function (projects) {
     projTitle.textContent = currentTitle;
     projTitle.dataset.elementType = this.dataset.elementType;
     projTitle.addEventListener("dblclick", changeTextToInput);
+
+    let project = this.dataset.project;
+    let subproject = this.dataset.subproject;
+    if (this.dataset.elementType == "p") {
+      if (this.dataset.newNode != "true") {
+        projects[project][currentTitle] = projects[project][subproject];
+        delete projects[project][subproject];
+      } else {
+        // TODO: Fix JSON injection with inserted h1 and p tags
+        projects[project][currentTitle] = {};
+      }
+      projTitle.dataset.project = this.dataset.project;
+      projTitle.dataset.subproject = currentTitle;
+      projTitle.addEventListener("click", showContent);
+    } else {
+      projTitle.dataset.project = currentTitle;
+      projects[currentTitle] = projects[project];
+      delete projects[project];
+
+      // Update current sub elements
+      const titleCard = this.parentNode.parentNode;
+      const subprojs = titleCard.querySelectorAll("p");
+      for (const subproj of subprojs) subproj.dataset.project = currentTitle;
+    }
     this.parentNode.replaceChild(projTitle, this);
+    object.Projects = projects;
+    localStorage.setItem("data", JSON.stringify(object));
   }
 
   function renderTaskDash() {
@@ -152,9 +196,14 @@ export default (function (projects) {
     addMore.src = plus;
     addMore.addEventListener("click", insertInputNode);
     projTitle.textContent = "New Project";
+    projects["New Project"] = {};
+    object.Projects = projects;
+    localStorage.setItem("data", JSON.stringify(object));
+
     projTitle.dataset.elementType = "h1";
     projTitle.addEventListener("dblclick", changeTextToInput);
     titleCard.classList.add("titleCard");
+    titleCard.addEventListener("click", showContent);
 
     titleCard.appendChild(projTitle);
     titleCard.appendChild(addMore);
@@ -174,7 +223,7 @@ export default (function (projects) {
 
       if (incomingButton == "plus") {
         newButton.src = close;
-        newButton.addEventListener("click", removeElement);
+        newButton.addEventListener("click", removeProject);
       } else {
         newButton.src = plus;
         newButton.addEventListener("click", insertInputNode);
@@ -198,9 +247,36 @@ export default (function (projects) {
     taskDash.replaceChild(controlButton, this);
   }
 
-  function removeElement() {
+  function removeProject() {
     const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
+    const nameOfProject = this.previousSibling.textContent;
+    delete projects[nameOfProject];
+    object.Projects = projects;
+    localStorage.setItem("data", JSON.stringify(object));
+
     projDiv.parentNode.removeChild(projDiv);
+  }
+
+  function showContent() {
+    let title = 0;
+    let subTitle = 0;
+    const pTags = document.querySelectorAll("p");
+    for (const tag of pTags) {
+      tag.style.backgroundColor = "inherit";
+    }
+    const h1Tags = document.querySelectorAll("h1");
+    for (const tag of h1Tags) {
+      tag.parentNode.style.backgroundColor = "inherit";
+    }
+
+    if (this.dataset.elementType == "p") {
+      subTitle = this.textContent;
+    } else {
+      title = this.firstChild.textContent;
+    }
+
+    this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+    content(title, subTitle);
   }
 
   init();
