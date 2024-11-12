@@ -6,6 +6,10 @@ import done from "./svg/done.png";
 
 export default (function (object) {
   let projects = object.Projects;
+  let timer = 0;
+  let delay = 2000;
+  let prevent = false;
+
   function init() {
     if (projects) renderDashboard();
     renderTaskDash();
@@ -77,6 +81,7 @@ export default (function (object) {
   }
 
   function changeTextToInput() {
+    // Make Sure click knows not to fire
     let currentTitle = this.textContent;
 
     const projInput = document.createElement("input");
@@ -115,7 +120,6 @@ export default (function (object) {
   }
 
   function convertBack() {
-    // TODO: Fix Object Naming Collisions
     let currentTitle = this.value;
     if (currentTitle == "") {
       if (typeof this.dataset.oldText === "undefined") {

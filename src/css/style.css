@@ -144,8 +144,29 @@
 }
 
 /* For Main Content */
-.todo {
+.projectCard {
   width: 70%;
+  padding: 10px 0;
+}
+
+.contentTitle {
+  border-bottom: 1px solid black;
+  padding: 5px 0;
+}
+
+.todo {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: 1fr 3fr 6fr 2fr repeat(2, 1fr);
+  grid-template-rows: repeat(auto-fill, 1fr) 80px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 0;
+}
+
+.todo :nth-last-child(-n + 3) {
+  text-align: center;
+}
+
+.todo :first-child {
+  text-align: center;
 }

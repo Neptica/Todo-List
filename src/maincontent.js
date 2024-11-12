@@ -8,6 +8,12 @@ export default (function (object, title, subtitle) {
     if (subtitle) {
       renderTodos(subtitle);
     } else {
+      const projDiv = document.createElement("div");
+      projDiv.classList.add("pDiv");
+      const projName = document.createElement("h1");
+      projName.textContent = title;
+      projDiv.appendChild(projName);
+      contentDiv.appendChild(projDiv);
       for (const [project, object] of Object.entries(workingObject[title])) {
         renderTodos(project);
       }
@@ -16,10 +22,17 @@ export default (function (object, title, subtitle) {
 
   function renderTodos(subProject) {
     // Takes Subproject Names as Arguments
-    const contentDiv = document.getElementById("workspace");
+    const workspace = document.getElementById("workspace");
+    const projectCard = document.createElement("div");
+    projectCard.classList.add("projectCard");
+    workspace.appendChild(projectCard);
+
+    const titleDiv = document.createElement("div");
+    titleDiv.classList.add("contentTitle");
     const projectTitle = document.createElement("h1");
     projectTitle.textContent = subProject;
-    contentDiv.appendChild(projectTitle);
+    titleDiv.appendChild(projectTitle);
+    projectCard.appendChild(titleDiv);
     for (const [todo, contents] of Object.entries(
       workingObject[title][subProject],
     )) {
@@ -34,7 +47,7 @@ export default (function (object, title, subtitle) {
         p.textContent = value;
         todoDiv.appendChild(p);
       }
-      contentDiv.appendChild(todoDiv);
+      projectCard.appendChild(todoDiv);
     }
   }
 
