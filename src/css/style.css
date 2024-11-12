@@ -58,6 +58,11 @@
   grid-column: 2;
   border-bottom: 0.5px solid var(--borderlines);
   border-left: 0.5px solid var(--borderlines);
+
+  /* Other Styling */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #workspace__controls {
@@ -136,4 +141,11 @@
   align-items: center;
   flex-direction: row;
   font-size: 1.4rem;
+}
+
+/* For Main Content */
+.todo {
+  width: 70%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
 }

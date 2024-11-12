@@ -115,6 +115,7 @@ export default (function (object) {
   }
 
   function convertBack() {
+    // TODO: Fix Object Naming Collisions
     let currentTitle = this.value;
     if (currentTitle == "") {
       if (typeof this.dataset.oldText === "undefined") {
@@ -141,7 +142,6 @@ export default (function (object) {
         projects[project][currentTitle] = projects[project][subproject];
         delete projects[project][subproject];
       } else {
-        // TODO: Fix JSON injection with inserted h1 and p tags
         projects[project][currentTitle] = {};
       }
       projTitle.dataset.project = this.dataset.project;
@@ -246,7 +246,6 @@ export default (function (object) {
     controlButton.addEventListener("click", changeProjectButtons);
     taskDash.replaceChild(controlButton, this);
   }
-
   function removeProject() {
     const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
     const nameOfProject = this.previousSibling.textContent;
@@ -258,8 +257,8 @@ export default (function (object) {
   }
 
   function showContent() {
-    let title = 0;
-    let subTitle = 0;
+    let project = 0;
+    let subProject = 0;
     const pTags = document.querySelectorAll("p");
     for (const tag of pTags) {
       tag.style.backgroundColor = "inherit";
@@ -270,13 +269,15 @@ export default (function (object) {
     }
 
     if (this.dataset.elementType == "p") {
-      subTitle = this.textContent;
+      // Get Project Tree
+      project = this.dataset.project;
+      subProject = this.dataset.subproject;
     } else {
-      title = this.firstChild.textContent;
+      project = this.firstChild.textContent;
     }
 
     this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
-    content(title, subTitle);
+    content(object, project, subProject);
   }
 
   init();

@@ -104,5 +104,4 @@ import content from "./maincontent.js";
 
   // Start HTML Population
   dashboard(object);
-  content(object.Projects);
 })();
