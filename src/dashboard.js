@@ -123,7 +123,6 @@ export default (function (object) {
         return;
       }
 
-      // console.log(this.dataset.oldText);
       currentTitle = this.dataset.oldText;
     }
 
@@ -139,8 +138,11 @@ export default (function (object) {
     let subproject = this.dataset.subproject;
     if (this.dataset.elementType == "p") {
       if (this.dataset.newNode != "true") {
-        projects[project][currentTitle] = projects[project][subproject];
-        delete projects[project][subproject];
+        if (currentTitle != subproject) {
+          // Don't Delete if Name remains the same
+          projects[project][currentTitle] = projects[project][subproject];
+          delete projects[project][subproject];
+        }
       } else {
         projects[project][currentTitle] = {};
       }
@@ -149,8 +151,11 @@ export default (function (object) {
       projTitle.addEventListener("click", showContent);
     } else {
       projTitle.dataset.project = currentTitle;
-      projects[currentTitle] = projects[project];
-      delete projects[project];
+      if (currentTitle != project) {
+        // Don't Delete if Name remains the same
+        projects[currentTitle] = projects[project];
+        delete projects[project];
+      }
 
       // Update current sub elements
       const titleCard = this.parentNode.parentNode;
@@ -276,8 +281,8 @@ export default (function (object) {
       project = this.firstChild.textContent;
     }
 
-    this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
     content(object, project, subProject);
+    this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
   }
 
   init();
