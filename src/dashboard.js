@@ -7,7 +7,7 @@ import done from "./svg/done.png";
 export default (function (object) {
   let projects = object.Projects;
   let timer = 0;
-  let delay = 2000;
+  let delay = 300;
   let prevent = false;
 
   function init() {
@@ -34,9 +34,23 @@ export default (function (object) {
       addMore.addEventListener("click", insertInputNode);
       projTitle.textContent = project;
       projTitle.dataset.elementType = "h1";
-      projTitle.addEventListener("dblclick", changeTextToInput);
+      projTitle.addEventListener("dblclick", function () {
+        prevent = true;
+        clearTimeout(timer);
+        changeTextToInput.call(this);
+      });
+
       titleCard.classList.add("titleCard");
-      titleCard.addEventListener("click", showContent);
+      titleCard.addEventListener("click", function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (!prevent) {
+            showContent.call(this);
+          } else {
+            prevent = false;
+          }
+        }, delay);
+      });
 
       titleCard.appendChild(projTitle);
       titleCard.appendChild(addMore);
@@ -50,8 +64,21 @@ export default (function (object) {
 
         iProjDiv.textContent = iProject;
         iProjDiv.dataset.elementType = "p";
-        iProjDiv.addEventListener("dblclick", changeTextToInput);
-        iProjDiv.addEventListener("click", showContent);
+        iProjDiv.addEventListener("dblclick", function () {
+          prevent = true;
+          clearTimeout(timer);
+          changeTextToInput.call(this);
+        });
+        iProjDiv.addEventListener("click", function () {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            if (!prevent) {
+              showContent.call(this);
+            } else {
+              prevent = false;
+            }
+          }, delay);
+        });
         projDiv.appendChild(iProjDiv);
       }
       dash.appendChild(projDiv);
@@ -136,7 +163,11 @@ export default (function (object) {
 
     projTitle.textContent = currentTitle;
     projTitle.dataset.elementType = this.dataset.elementType;
-    projTitle.addEventListener("dblclick", changeTextToInput);
+    projTitle.addEventListener("dblclick", function () {
+      prevent = true;
+      clearTimeout(timer);
+      changeTextToInput.call(this);
+    });
 
     let project = this.dataset.project;
     let subproject = this.dataset.subproject;
@@ -152,7 +183,16 @@ export default (function (object) {
       }
       projTitle.dataset.project = this.dataset.project;
       projTitle.dataset.subproject = currentTitle;
-      projTitle.addEventListener("click", showContent);
+      projTitle.addEventListener("click", function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (!prevent) {
+            showContent.call(this);
+          } else {
+            prevent = false;
+          }
+        }, delay);
+      });
     } else {
       projTitle.dataset.project = currentTitle;
       if (currentTitle != project) {
@@ -166,6 +206,15 @@ export default (function (object) {
       const subprojs = titleCard.querySelectorAll("p");
       for (const subproj of subprojs) subproj.dataset.project = currentTitle;
     }
+    if (projTitle.dataset.elementType == "p") {
+      if (this.style.backgroundColor == "rgba(0, 0, 0, 0.2)")
+        showContent.call(projTitle);
+      else if (
+        this.parentNode.firstChild.style.backgroundColor == "rgba(0, 0, 0, 0.2)"
+      )
+        showContent.call(this.parentNode.firstChild);
+    } else showContent.call(this.parentNode);
+
     this.parentNode.replaceChild(projTitle, this);
     object.Projects = projects;
     localStorage.setItem("data", JSON.stringify(object));
@@ -210,9 +259,22 @@ export default (function (object) {
     localStorage.setItem("data", JSON.stringify(object));
 
     projTitle.dataset.elementType = "h1";
-    projTitle.addEventListener("dblclick", changeTextToInput);
+    projTitle.addEventListener("dblclick", function () {
+      prevent = true;
+      clearTimeout(timer);
+      changeTextToInput.call(this);
+    });
     titleCard.classList.add("titleCard");
-    titleCard.addEventListener("click", showContent);
+    titleCard.addEventListener("click", function () {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (!prevent) {
+          showContent.call(this);
+        } else {
+          prevent = false;
+        }
+      }, delay);
+    });
 
     titleCard.appendChild(projTitle);
     titleCard.appendChild(addMore);
