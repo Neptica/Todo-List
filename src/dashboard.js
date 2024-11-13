@@ -214,16 +214,25 @@ export default (function () {
 
     let isSubProject = null;
     const isActive = this.parentNode.dataset.active;
+    // currentType is that which is being edited
     if (currentType == "p") {
       const parentIsActive =
         this.parentNode.parentNode.firstChild.dataset.active;
       if (parentIsActive === "true") {
         isSubProject = 1; // Reload Parent (Child Change)
-      } else if (isActive) isSubProject = 2; // Reload Self (SubProject)
+      } else if (isActive === "true") isSubProject = 2; // Reload Self (SubProject)
     } else if (isActive === "true")
       isSubProject = 3; // Reload Self (Project)
-    else isSubProject = 4;
-    // Reload Self (Parent Change)
+    // check other divs to see if active
+    else {
+      const projectCard = this.parentNode.parentNode;
+      const divs = projectCard.querySelectorAll("div");
+      for (const div of divs) {
+        console.log(div.dataset.active);
+        if (div.dataset.active === "true") isSubProject = 4;
+        // Reload Self (Parent Change)
+      }
+    }
 
     this.parentNode.replaceChild(projTitle, this);
     object.Projects = projects;

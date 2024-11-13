@@ -128,6 +128,15 @@
     -apple-system;
   font-size: 1rem;
 }
+
+.clearBox {
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-family:
+    system-ui,
+    -apple-system;
+}
 /* For Clear Input Boxes */
 
 /* Dash Control Center */
@@ -144,6 +153,12 @@
 }
 
 /* For Main Content */
+.pDiv {
+  width: 70%;
+  display: flex;
+  justify-content: center;
+}
+
 .projectCard {
   width: 70%;
   padding: 10px 0;
@@ -168,5 +183,5 @@
 }
 
 .todo :first-child {
-  text-align: center;
+  text-align: center; /* ; */
 }
