@@ -1,4 +1,4 @@
-import content from "./maincontent.js";
+import PubSub from "./index.js";
 import plus from "./svg/plus.svg";
 import setting from "./svg/tune.svg";
 import close from "./svg/close-circle.svg";
@@ -148,6 +148,8 @@ export default (function (object) {
 
   function convertBack() {
     let currentTitle = this.value;
+
+    // Either Delete the New SubProject or Return the Subproject to how it was.
     if (currentTitle == "") {
       if (typeof this.dataset.oldText === "undefined") {
         this.parentNode.removeChild(this);
@@ -158,9 +160,7 @@ export default (function (object) {
     }
 
     const currentType = this.dataset.elementType;
-
     const projTitle = document.createElement(currentType);
-
     projTitle.textContent = currentTitle;
     projTitle.dataset.elementType = this.dataset.elementType;
     projTitle.addEventListener("dblclick", function () {
@@ -171,17 +171,15 @@ export default (function (object) {
 
     let project = this.dataset.project;
     let subproject = this.dataset.subproject;
-    if (this.dataset.elementType == "p") {
-      if (this.dataset.newNode != "true") {
-        if (currentTitle != subproject) {
-          // Don't Delete if Name remains the same
-          projects[project][currentTitle] = projects[project][subproject];
-          delete projects[project][subproject];
-        }
-      } else {
+    if (currentType == "p") {
+      if (this.dataset.newNode == "true") {
         projects[project][currentTitle] = {};
+      } else if (currentTitle != subproject) {
+        // Don't Delete if Name remains the same
+        projects[project][currentTitle] = projects[project][subproject];
+        delete projects[project][subproject];
       }
-      projTitle.dataset.project = this.dataset.project;
+      projTitle.dataset.project = project;
       projTitle.dataset.subproject = currentTitle;
       projTitle.addEventListener("click", function () {
         clearTimeout(timer);
@@ -195,29 +193,32 @@ export default (function (object) {
       });
     } else {
       projTitle.dataset.project = currentTitle;
+
+      // Do nothing if object Name remains the same
       if (currentTitle != project) {
-        // Don't Delete if Name remains the same
         projects[currentTitle] = projects[project];
         delete projects[project];
       }
 
-      // Update current sub elements
-      const titleCard = this.parentNode.parentNode;
+      // Update current sub elements' project title
+      const titleCard = this.parentNode.parentNode; // H1 > TitleCard > ProjDiv
       const subprojs = titleCard.querySelectorAll("p");
       for (const subproj of subprojs) subproj.dataset.project = currentTitle;
     }
+
+    let isSubProject = 0;
     if (projTitle.dataset.elementType == "p") {
-      if (this.style.backgroundColor == "rgba(0, 0, 0, 0.2)")
-        showContent.call(projTitle);
+      if (this.style.backgroundColor == "rgba(0, 0, 0, 0.2)") isSubProject = 1;
       else if (
         this.parentNode.firstChild.style.backgroundColor == "rgba(0, 0, 0, 0.2)"
       )
-        showContent.call(this.parentNode.firstChild);
-    } else showContent.call(this.parentNode);
+        isSubProject = 2;
+    } else isSubProject = 2;
 
     this.parentNode.replaceChild(projTitle, this);
     object.Projects = projects;
     localStorage.setItem("data", JSON.stringify(object));
+    PubSub.publish("Name Change", object, currentTitle, isSubProject);
   }
 
   function renderTaskDash() {
@@ -281,6 +282,7 @@ export default (function (object) {
     projDiv.appendChild(titleCard);
 
     dash.appendChild(projDiv);
+    PubSub.publish("New Project", object, "New Project");
   }
 
   function changeProjectButtons() {
@@ -317,6 +319,7 @@ export default (function (object) {
     controlButton.addEventListener("click", changeProjectButtons);
     taskDash.replaceChild(controlButton, this);
   }
+
   function removeProject() {
     const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
     const nameOfProject = this.previousSibling.textContent;
@@ -325,6 +328,7 @@ export default (function (object) {
     localStorage.setItem("data", JSON.stringify(object));
 
     projDiv.parentNode.removeChild(projDiv);
+    PubSub.publish("RemoveProject");
   }
 
   function showContent() {
@@ -347,7 +351,7 @@ export default (function (object) {
       project = this.firstChild.textContent;
     }
 
-    content(object, project, subProject);
+    PubSub.publish("Project Clicked", object, project, subProject);
     this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
   }
 

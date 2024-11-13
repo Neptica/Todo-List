@@ -1,5 +1,24 @@
 import "./css/style.css";
 import dashboard from "./dashboard.js";
+import content from "./maincontent.js";
+
+const PubSub = {
+  events: {},
+  subscribe: function (eventName, callback) {
+    if (!this.events[eventName]) {
+      this.events[eventName] = [];
+    }
+    this.events[eventName].push(callback);
+  },
+
+  publish: function (eventName, ...data) {
+    if (this.events[eventName]) {
+      this.events[eventName].forEach((callback) => callback(...data));
+    }
+  },
+};
+
+export default PubSub;
 
 (function () {
   localStorage.data = JSON.stringify({
@@ -103,4 +122,5 @@ import dashboard from "./dashboard.js";
 
   // Start HTML Population
   dashboard(object);
+  content();
 })();
