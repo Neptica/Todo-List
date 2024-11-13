@@ -80,7 +80,7 @@
   width: 100%;
 }
 
-.proj p,
+.spDiv,
 .indProj {
   margin-left: 15px;
   padding: 5px;
@@ -119,7 +119,7 @@
     -apple-system;
 }
 
-.indProj {
+.indProj input {
   background-color: transparent;
   outline: none;
   border: none;

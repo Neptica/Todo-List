@@ -57,14 +57,17 @@ export default (function (object) {
       projDiv.appendChild(titleCard);
 
       for (const [iProject, values] of Object.entries(indProjects)) {
-        const iProjDiv = document.createElement("p");
-        // Setup Data Link
-        iProjDiv.dataset.project = project;
-        iProjDiv.dataset.subproject = iProject;
+        const iProjDiv = document.createElement("div");
+        iProjDiv.classList.add("spDiv");
+        const iProjP = document.createElement("p");
 
-        iProjDiv.textContent = iProject;
-        iProjDiv.dataset.elementType = "p";
-        iProjDiv.addEventListener("dblclick", function () {
+        // Setup Data Link
+        iProjP.dataset.project = project;
+        iProjP.dataset.subproject = iProject;
+
+        iProjP.textContent = iProject;
+        iProjP.dataset.elementType = "p";
+        iProjP.addEventListener("dblclick", function () {
           prevent = true;
           clearTimeout(timer);
           changeTextToInput.call(this);
@@ -79,6 +82,7 @@ export default (function (object) {
             }
           }, delay);
         });
+        iProjDiv.appendChild(iProjP);
         projDiv.appendChild(iProjDiv);
       }
       dash.appendChild(projDiv);
@@ -86,8 +90,11 @@ export default (function (object) {
   }
 
   function insertInputNode() {
+    const iProjDiv = document.createElement("div");
+    iProjDiv.classList.add("spDiv");
+    iProjDiv.classList.add("indProj");
     const projInput = document.createElement("input");
-    projInput.classList.add("indProj");
+    iProjDiv.appendChild(projInput);
     projInput.dataset.elementType = "p";
     projInput.dataset.newNode = "true";
 
@@ -102,7 +109,7 @@ export default (function (object) {
       }
     });
 
-    this.parentNode.after(projInput);
+    this.parentNode.after(iProjDiv);
 
     projInput.focus(); // this makes it focus on the box
   }
@@ -206,19 +213,26 @@ export default (function (object) {
       for (const subproj of subprojs) subproj.dataset.project = currentTitle;
     }
 
-    let isSubProject = 0;
-    if (projTitle.dataset.elementType == "p") {
-      if (this.style.backgroundColor == "rgba(0, 0, 0, 0.2)") isSubProject = 1;
-      else if (
-        this.parentNode.firstChild.style.backgroundColor == "rgba(0, 0, 0, 0.2)"
-      )
-        isSubProject = 2;
-    } else isSubProject = 2;
+    // TODO: Update Logic for Keeping Subproject within other closure
+    let isSubProject = null;
+    const isActive = this.parentNode.dataset.active;
+    if (currentType == "p") {
+      const parentIsActive =
+        this.parentNode.parentNode.firstChild.dataset.active;
+      if (parentIsActive === "true") {
+        isSubProject = 1; // Reload Parent (Child Change)
+        console.log("Parent Is Active", parentIsActive);
+      } else if (isActive) isSubProject = 2; // Reload Self (SubProject)
+    } else if (isActive === "true")
+      isSubProject = 3; // Reload Self (Project)
+    else isSubProject = 4;
+    // Reload Self (Parent Change)
 
     this.parentNode.replaceChild(projTitle, this);
     object.Projects = projects;
     localStorage.setItem("data", JSON.stringify(object));
-    PubSub.publish("Name Change", object, currentTitle, isSubProject);
+    if (isSubProject)
+      PubSub.publish("Name Change", object, currentTitle, isSubProject);
   }
 
   function renderTaskDash() {
@@ -281,7 +295,13 @@ export default (function (object) {
     titleCard.appendChild(addMore);
     projDiv.appendChild(titleCard);
 
+    const h1Tags = document.querySelectorAll("h1");
+    for (const tag of h1Tags) {
+      tag.parentNode.style.backgroundColor = "inherit";
+    }
+    titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
     dash.appendChild(projDiv);
+
     PubSub.publish("New Project", object, "New Project");
   }
 
@@ -328,7 +348,7 @@ export default (function (object) {
     localStorage.setItem("data", JSON.stringify(object));
 
     projDiv.parentNode.removeChild(projDiv);
-    PubSub.publish("RemoveProject");
+    PubSub.publish("RemoveProject", object, nameOfProject);
   }
 
   function showContent() {
@@ -336,21 +356,24 @@ export default (function (object) {
     let subProject = 0;
     const pTags = document.querySelectorAll("p");
     for (const tag of pTags) {
-      tag.style.backgroundColor = "inherit";
+      tag.parentNode.style.backgroundColor = "inherit";
+      tag.parentNode.dataset.active = null;
     }
     const h1Tags = document.querySelectorAll("h1");
     for (const tag of h1Tags) {
       tag.parentNode.style.backgroundColor = "inherit";
+      tag.parentNode.dataset.active = null;
     }
 
-    if (this.dataset.elementType == "p") {
+    if (this.firstChild.dataset.elementType == "p") {
       // Get Project Tree
-      project = this.dataset.project;
-      subProject = this.dataset.subproject;
+      project = this.firstChild.dataset.project;
+      subProject = this.firstChild.dataset.subproject;
     } else {
       project = this.firstChild.textContent;
     }
 
+    this.dataset.active = "true";
     PubSub.publish("Project Clicked", object, project, subProject);
     this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
   }
