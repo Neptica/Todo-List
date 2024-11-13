@@ -92,15 +92,14 @@ export default (function () {
   function insertInputNode() {
     const iProjDiv = document.createElement("div");
     iProjDiv.classList.add("spDiv");
-    iProjDiv.classList.add("indProj");
+    iProjDiv.classList.add("indProj"); // clear textbox
     const projInput = document.createElement("input");
     iProjDiv.appendChild(projInput);
-    projInput.dataset.elementType = "p";
-    projInput.dataset.newNode = "true";
 
     const project = this.previousSibling.textContent;
     projInput.dataset.project = project;
-    projInput.dataset.subproject = this.dataset.subproject;
+    projInput.dataset.elementType = "p";
+    projInput.dataset.newNode = "true";
 
     projInput.addEventListener("focusout", convertBack);
     projInput.addEventListener("keydown", function (e) {
@@ -133,13 +132,13 @@ export default (function () {
     // Transfer Data Link
     projInput.dataset.project = this.dataset.project;
     projInput.dataset.subproject = this.dataset.subproject;
+    projInput.dataset.elementType = this.dataset.elementType;
 
     projInput.value = currentTitle;
-    projInput.dataset.elementType = this.dataset.elementType;
     projInput.dataset.oldText = currentTitle;
     if (projInput.dataset.elementType == "p")
       projInput.classList.add("indProj");
-    else this.parentNode.style.backgroundColor = "inherit";
+    // else this.parentNode.style.backgroundColor = "inherit";
 
     projInput.addEventListener("focusout", convertBack);
     projInput.addEventListener("keydown", function (e) {
@@ -169,7 +168,7 @@ export default (function () {
     const currentType = this.dataset.elementType;
     const projTitle = document.createElement(currentType);
     projTitle.textContent = currentTitle;
-    projTitle.dataset.elementType = this.dataset.elementType;
+    projTitle.dataset.elementType = currentType;
     projTitle.addEventListener("dblclick", function () {
       prevent = true;
       clearTimeout(timer);
@@ -181,6 +180,16 @@ export default (function () {
     if (currentType == "p") {
       if (this.dataset.newNode == "true") {
         projects[project][currentTitle] = {};
+        this.parentNode.addEventListener("click", function () {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            if (!prevent) {
+              showContent.call(this);
+            } else {
+              prevent = false;
+            }
+          }, delay);
+        });
       } else if (currentTitle != subproject) {
         // Don't Delete if Name remains the same
         projects[project][currentTitle] = projects[project][subproject];
@@ -188,16 +197,6 @@ export default (function () {
       }
       projTitle.dataset.project = project;
       projTitle.dataset.subproject = currentTitle;
-      projTitle.addEventListener("click", function () {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          if (!prevent) {
-            showContent.call(this);
-          } else {
-            prevent = false;
-          }
-        }, delay);
-      });
     } else {
       projTitle.dataset.project = currentTitle;
 
@@ -213,7 +212,6 @@ export default (function () {
       for (const subproj of subprojs) subproj.dataset.project = currentTitle;
     }
 
-    // TODO: Update Logic for Keeping Subproject within other closure
     let isSubProject = null;
     const isActive = this.parentNode.dataset.active;
     if (currentType == "p") {
@@ -221,7 +219,6 @@ export default (function () {
         this.parentNode.parentNode.firstChild.dataset.active;
       if (parentIsActive === "true") {
         isSubProject = 1; // Reload Parent (Child Change)
-        console.log("Parent Is Active", parentIsActive);
       } else if (isActive) isSubProject = 2; // Reload Self (SubProject)
     } else if (isActive === "true")
       isSubProject = 3; // Reload Self (Project)
@@ -351,8 +348,6 @@ export default (function () {
   }
 
   function showContent() {
-    let project = 0;
-    let subProject = 0;
     const pTags = document.querySelectorAll("p");
     for (const tag of pTags) {
       tag.parentNode.style.backgroundColor = "inherit";
@@ -364,6 +359,8 @@ export default (function () {
       tag.parentNode.dataset.active = null;
     }
 
+    let project = 0;
+    let subProject = 0;
     if (this.firstChild.dataset.elementType == "p") {
       // Get Project Tree
       project = this.firstChild.dataset.project;

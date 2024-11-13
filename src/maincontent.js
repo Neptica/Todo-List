@@ -34,7 +34,7 @@ export default (function () {
   });
 
   PubSub.subscribe("Name Change", function (nameChange, option) {
-    console.log(option);
+    // console.log(option);
     switch (option) {
       case 1:
         init(currentProject); // Project to Display
