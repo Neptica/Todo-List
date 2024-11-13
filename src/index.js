@@ -20,6 +20,9 @@ const PubSub = {
 
 export default PubSub;
 
+const data = localStorage.data;
+export const object = JSON.parse(data);
+
 (function () {
   localStorage.data = JSON.stringify({
     Projects: {
@@ -116,11 +119,7 @@ export default PubSub;
     },
   });
 
-  let data = localStorage.getItem("data");
-  let object = JSON.parse(data);
-  console.log(object);
-
   // Start HTML Population
-  dashboard(object);
+  dashboard();
   content();
 })();

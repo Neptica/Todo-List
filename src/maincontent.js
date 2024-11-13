@@ -1,11 +1,11 @@
-import PubSub from "./index.js";
+import PubSub, { object } from "./index.js";
 
 export default (function () {
   // Takes the Object being operated on, the project name, and the subtitle name as arguments, from which paths will be constructed
   let currentProject = null;
   let currentSubProject = null;
 
-  function init(object, title, subtitle = null) {
+  function init(title, subtitle = null) {
     const contentDiv = document.getElementById("workspace");
     contentDiv.innerHTML = "";
     if (!object.Projects[title]) return;
@@ -23,45 +23,43 @@ export default (function () {
       projName.textContent = title;
       projDiv.appendChild(projName);
       contentDiv.appendChild(projDiv);
-      for (const [project, object] of Object.entries(workingObject)) {
+      for (const [project, _] of Object.entries(workingObject)) {
         renderTodos(project, workingObject[project]);
       }
     }
   }
 
-  PubSub.subscribe("Project Clicked", function (object, title, subtitle) {
-    init(object, title, subtitle);
+  PubSub.subscribe("Project Clicked", function (title, subtitle) {
+    init(title, subtitle);
   });
 
-  PubSub.subscribe("Name Change", function (object, nameChange, option) {
+  PubSub.subscribe("Name Change", function (nameChange, option) {
     console.log(option);
     switch (option) {
       case 1:
-        init(object, currentProject); // Project to Display
+        init(currentProject); // Project to Display
         break;
       case 2:
-        init(object, currentProject, nameChange); // SubProject To Display
+        init(currentProject, nameChange); // SubProject To Display
         break;
       case 3:
-        init(object, nameChange); // Project to Display
+        init(nameChange); // Project to Display
         break;
       case 4:
-        init(object, nameChange, currentSubProject); // SubProject To Display
+        init(nameChange, currentSubProject); // SubProject To Display
         break;
 
       default:
         break;
     }
-    // if (option === 1) init(object, title, currentSubProject);
-    // else if (option === 2) init(object, currentProject, title);
   });
 
-  PubSub.subscribe("New Project", function (object, title) {
-    init(object, title);
+  PubSub.subscribe("New Project", function (title) {
+    init(title);
   });
 
-  PubSub.subscribe("Remove Project", function (object, title) {
-    init(object, title);
+  PubSub.subscribe("Remove Project", function (title) {
+    init(title);
   });
 
   function renderTodos(projTitle, subProject) {

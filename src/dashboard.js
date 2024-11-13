@@ -1,10 +1,10 @@
-import PubSub from "./index.js";
+import PubSub, { object } from "./index.js";
 import plus from "./svg/plus.svg";
 import setting from "./svg/tune.svg";
 import close from "./svg/close-circle.svg";
 import done from "./svg/done.png";
 
-export default (function (object) {
+export default (function () {
   let projects = object.Projects;
   let timer = 0;
   let delay = 300;
@@ -231,8 +231,7 @@ export default (function (object) {
     this.parentNode.replaceChild(projTitle, this);
     object.Projects = projects;
     localStorage.setItem("data", JSON.stringify(object));
-    if (isSubProject)
-      PubSub.publish("Name Change", object, currentTitle, isSubProject);
+    if (isSubProject) PubSub.publish("Name Change", currentTitle, isSubProject);
   }
 
   function renderTaskDash() {
@@ -302,7 +301,7 @@ export default (function (object) {
     titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
     dash.appendChild(projDiv);
 
-    PubSub.publish("New Project", object, "New Project");
+    PubSub.publish("New Project", "New Project");
   }
 
   function changeProjectButtons() {
@@ -348,7 +347,7 @@ export default (function (object) {
     localStorage.setItem("data", JSON.stringify(object));
 
     projDiv.parentNode.removeChild(projDiv);
-    PubSub.publish("RemoveProject", object, nameOfProject);
+    PubSub.publish("RemoveProject", nameOfProject);
   }
 
   function showContent() {
@@ -374,7 +373,7 @@ export default (function (object) {
     }
 
     this.dataset.active = "true";
-    PubSub.publish("Project Clicked", object, project, subProject);
+    PubSub.publish("Project Clicked", project, subProject);
     this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
   }
 
