@@ -15,11 +15,34 @@ export default (function () {
     renderTaskDash();
   }
 
-  PubSub.subscribe("Project Change", renderDashboard);
+  PubSub.subscribe("Project Change", (name) => {
+    renderDashboard(name);
+  });
 
-  function renderDashboard() {
+  function renderDashboard(newName = null) {
     let projects = getObject().Projects;
     const dash = document.getElementById("dashboard");
+    let prevActive = null;
+    let isProject = "none";
+    if (dash.innerHTML != "") {
+      const pTCards = dash.getElementsByClassName("titleCard");
+      for (const card of pTCards) {
+        const active = card.dataset.active;
+        if (active === "true") {
+          if (card.firstChild.textContent === "Home") prevActive = "Home";
+          else prevActive = newName;
+          isProject = "true";
+        }
+      }
+      const spTCards = dash.getElementsByClassName("spDiv");
+      for (const card of spTCards) {
+        const active = card.dataset.active;
+        if (active === "true") {
+          prevActive = newName;
+          isProject = "false";
+        }
+      }
+    }
     dash.innerHTML = "";
 
     const homeDiv = document.createElement("div");
@@ -27,6 +50,10 @@ export default (function () {
     const titleCard = document.createElement("div");
     const homeTag = document.createElement("h1");
     homeTag.textContent = "Home";
+    if (isProject === "true" && prevActive === "Home") {
+      titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+      titleCard.dataset.active = "true";
+    }
     titleCard.classList.add("titleCard");
     titleCard.addEventListener("click", showContent);
 
@@ -71,6 +98,11 @@ export default (function () {
       titleCard.appendChild(addMore);
       projDiv.appendChild(titleCard);
 
+      if (isProject === "true" && prevActive === project) {
+        titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+        titleCard.dataset.active = "true";
+      }
+
       for (const [iProject, values] of Object.entries(indProjects)) {
         const iProjDiv = document.createElement("div");
         iProjDiv.classList.add("spDiv");
@@ -99,6 +131,10 @@ export default (function () {
         });
         iProjDiv.appendChild(iProjP);
         projDiv.appendChild(iProjDiv);
+        if (isProject === "false" && prevActive === iProject) {
+          iProjDiv.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+          iProjDiv.dataset.active = "true";
+        }
       }
       dash.appendChild(projDiv);
     }
@@ -244,7 +280,7 @@ export default (function () {
       const projectCard = this.parentNode.parentNode;
       const divs = projectCard.querySelectorAll("div");
       for (const div of divs) {
-        console.log(div.dataset.active);
+        // console.log(div.dataset.active);
         if (div.dataset.active === "true") isSubProject = 4;
         // Reload Self (Parent Change)
       }

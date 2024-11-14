@@ -217,7 +217,7 @@ export default (function () {
     replacementText.textContent = newName;
 
     setObject(projects);
-    PubSub.publish("Project Change");
+    PubSub.publish("Project Change", newName); // newName to make sure proper element is selected
     this.parentNode.replaceChild(replacementText, this);
   }
 });
