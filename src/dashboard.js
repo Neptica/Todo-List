@@ -19,7 +19,7 @@ export default (function () {
     renderDashboard(name);
   });
 
-  function renderDashboard(newName = null) {
+  function renderDashboard(newName = null, isNew = null) {
     let projects = getObject().Projects;
     const dash = document.getElementById("dashboard");
     let prevActive = null;
@@ -31,6 +31,9 @@ export default (function () {
         if (active === "true") {
           if (card.firstChild.textContent === "Home") prevActive = "Home";
           else prevActive = newName;
+          isProject = "true";
+        } else if (isNew === "true") {
+          prevActive = newName;
           isProject = "true";
         }
       }
@@ -315,17 +318,7 @@ export default (function () {
 
   function newProject() {
     let projects = getObject().Projects;
-    const dash = document.getElementById("dashboard");
-    const projDiv = document.createElement("div");
 
-    projDiv.classList.add("proj");
-    const titleCard = document.createElement("div");
-    const projTitle = document.createElement("h1");
-    const addMore = document.createElement("img");
-
-    addMore.src = plus;
-    addMore.addEventListener("click", insertInputNode);
-    projTitle.textContent = "New Project";
     projects["New Project"] = {
       SubProject: {
         todo: {
@@ -340,37 +333,7 @@ export default (function () {
 
     setObject(projects);
 
-    projTitle.dataset.elementType = "h1";
-    projTitle.addEventListener("dblclick", function () {
-      prevent = true;
-      clearTimeout(timer);
-      changeTextToInput.call(this);
-    });
-    titleCard.classList.add("titleCard");
-    titleCard.addEventListener("click", function () {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        if (!prevent) {
-          showContent.call(this);
-        } else {
-          prevent = false;
-        }
-      }, delay);
-    });
-
-    titleCard.appendChild(projTitle);
-    titleCard.appendChild(addMore);
-    projDiv.appendChild(titleCard);
-
-    const h1Tags = document.querySelectorAll("h1");
-    for (const tag of h1Tags) {
-      tag.parentNode.style.backgroundColor = "inherit";
-    }
-    titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
-    // TODO: Why is this this way
-    // dash.appendChild(projDiv);
-
-    renderDashboard();
+    renderDashboard("New Project", "true");
     PubSub.publish("New Project", "New Project");
   }
 
