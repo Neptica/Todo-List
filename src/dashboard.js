@@ -1,11 +1,11 @@
-import PubSub, { object } from "./index.js";
+import PubSub, { getObject, setObject } from "./index.js";
 import plus from "./svg/plus.svg";
 import setting from "./svg/tune.svg";
 import close from "./svg/close-circle.svg";
 import done from "./svg/done.png";
 
 export default (function () {
-  let projects = object.Projects;
+  let projects = getObject().Projects;
   let timer = 0;
   let delay = 300;
   let prevent = false;
@@ -18,6 +18,18 @@ export default (function () {
   function renderDashboard() {
     const dash = document.getElementById("dashboard");
     dash.innerHTML = "";
+
+    const homeDiv = document.createElement("div");
+    homeDiv.classList.add("proj");
+    const titleCard = document.createElement("div");
+    const homeTag = document.createElement("h1");
+    homeTag.textContent = "Home";
+    titleCard.classList.add("titleCard");
+    titleCard.addEventListener("click", showContent);
+
+    titleCard.appendChild(homeTag);
+    homeDiv.appendChild(titleCard);
+    dash.appendChild(homeDiv);
 
     for (const [project, indProjects] of Object.entries(projects)) {
       const projDiv = document.createElement("div");
@@ -235,8 +247,7 @@ export default (function () {
     }
 
     this.parentNode.replaceChild(projTitle, this);
-    object.Projects = projects;
-    localStorage.setItem("data", JSON.stringify(object));
+    setObject(projects);
     if (isSubProject) PubSub.publish("Name Change", currentTitle, isSubProject);
   }
 
@@ -274,9 +285,19 @@ export default (function () {
     addMore.src = plus;
     addMore.addEventListener("click", insertInputNode);
     projTitle.textContent = "New Project";
-    projects["New Project"] = {};
-    object.Projects = projects;
-    localStorage.setItem("data", JSON.stringify(object));
+    projects["New Project"] = {
+      SubProject: {
+        todo: {
+          title: "Gym",
+          description: "Get Massive",
+          date: "2024-11-12",
+          done: false,
+          priority: "High",
+        },
+      },
+    };
+
+    setObject(projects);
 
     projTitle.dataset.elementType = "h1";
     projTitle.addEventListener("dblclick", function () {
@@ -305,8 +326,9 @@ export default (function () {
       tag.parentNode.style.backgroundColor = "inherit";
     }
     titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
-    dash.appendChild(projDiv);
+    // dash.appendChild(projDiv);
 
+    renderDashboard();
     PubSub.publish("New Project", "New Project");
   }
 
@@ -349,8 +371,7 @@ export default (function () {
     const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
     const nameOfProject = this.previousSibling.textContent;
     delete projects[nameOfProject];
-    object.Projects = projects;
-    localStorage.setItem("data", JSON.stringify(object));
+    setObject(projects);
 
     projDiv.parentNode.removeChild(projDiv);
     PubSub.publish("RemoveProject", nameOfProject);
@@ -368,18 +389,22 @@ export default (function () {
       tag.parentNode.dataset.active = null;
     }
 
-    let project = 0;
-    let subProject = 0;
-    if (this.firstChild.dataset.elementType == "p") {
-      // Get Project Tree
-      project = this.firstChild.dataset.project;
-      subProject = this.firstChild.dataset.subproject;
+    if (this.firstChild.textContent === "Home") {
+      PubSub.publish("Home Clicked");
     } else {
-      project = this.firstChild.textContent;
-    }
+      let project = 0;
+      let subProject = 0;
+      if (this.firstChild.dataset.elementType == "p") {
+        // Get Project Tree
+        project = this.firstChild.dataset.project;
+        subProject = this.firstChild.dataset.subproject;
+      } else {
+        project = this.firstChild.textContent;
+      }
 
+      PubSub.publish("Project Clicked", project, subProject);
+    }
     this.dataset.active = "true";
-    PubSub.publish("Project Clicked", project, subProject);
     this.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
   }
 

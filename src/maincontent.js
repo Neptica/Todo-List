@@ -1,19 +1,28 @@
-import PubSub, { object } from "./index.js";
+import PubSub, { getObject, setObject } from "./index.js";
 
 export default (function () {
   // Takes the Object being operated on, the project name, and the subtitle name as arguments, from which paths will be constructed
   let currentProject = null;
   let currentSubProject = null;
 
-  function init(title, subtitle = null) {
+  function render(title, subtitle = null, restartWorkspace = false) {
     const contentDiv = document.getElementById("workspace");
-    contentDiv.innerHTML = "";
-    if (!object.Projects[title]) return;
-    let workingObject = object.Projects[title]; // initialize
+    const allProjCard = document.createElement("div");
+    allProjCard.classList.add("allProj");
+
+    if (!restartWorkspace) contentDiv.innerHTML = "";
+    if (!getObject().Projects[title]) return;
+    let workingObject = getObject().Projects[title]; // initialize
+
     if (subtitle) {
       currentProject = title;
       currentSubProject = subtitle;
-      renderTodos(title, subtitle, object.Projects[title][subtitle]);
+      renderTodo(
+        title,
+        subtitle,
+        getObject().Projects[title][subtitle],
+        allProjCard,
+      );
     } else {
       currentProject = title;
       currentSubProject = null;
@@ -25,31 +34,32 @@ export default (function () {
       projName.dataset.project = title;
       projName.dataset.subProject = null;
       projDiv.appendChild(projName);
-      contentDiv.appendChild(projDiv);
+      allProjCard.appendChild(projDiv);
       for (const [subProject, _] of Object.entries(workingObject)) {
-        renderTodos(title, subProject, workingObject[subProject]);
+        renderTodo(title, subProject, workingObject[subProject], allProjCard);
       }
     }
+    updateBottomMargin(allProjCard);
   }
 
   PubSub.subscribe("Project Clicked", function (title, subtitle) {
-    init(title, subtitle);
+    render(title, subtitle);
   });
 
   PubSub.subscribe("Name Change", function (nameChange, option) {
     console.log(option);
     switch (option) {
       case 1:
-        init(currentProject); // Project to Display
+        render(currentProject); // Project to Display
         break;
       case 2:
-        init(currentProject, nameChange); // SubProject To Display
+        render(currentProject, nameChange); // SubProject To Display
         break;
       case 3:
-        init(nameChange); // Project to Display
+        render(nameChange); // Project to Display
         break;
       case 4:
-        init(nameChange, currentSubProject); // SubProject To Display
+        render(nameChange, currentSubProject); // SubProject To Display
         break;
 
       default:
@@ -58,19 +68,31 @@ export default (function () {
   });
 
   PubSub.subscribe("New Project", function (title) {
-    init(title);
+    render(title);
   });
 
   PubSub.subscribe("Remove Project", function (title) {
-    init(title);
+    render(title);
   });
 
-  function renderTodos(title, subTitle, subProject) {
+  PubSub.subscribe("Home Clicked", () => {
+    const projects = getObject().Projects;
+    const contentDiv = document.getElementById("workspace");
+    contentDiv.innerHTML = "";
+    console.log(projects);
+    for (const [title] of Object.entries(projects)) {
+      render(title, null, true);
+    }
+  });
+
+  function renderTodo(title, subTitle, subProject, allProj) {
     // Takes Subproject Names as Arguments
     const workspace = document.getElementById("workspace");
+    workspace.appendChild(allProj);
+    console.log(allProj.firstChild.textContent, title, subProject);
     const projectCard = document.createElement("div");
     projectCard.classList.add("projectCard");
-    workspace.appendChild(projectCard);
+    allProj.appendChild(projectCard);
 
     const titleDiv = document.createElement("div");
     titleDiv.classList.add("contentTitle");
@@ -99,6 +121,7 @@ export default (function () {
       }
       projectCard.appendChild(todoDiv);
     }
+    updateBottomMargin(projectCard);
   }
 
   function changeToInput() {
@@ -132,6 +155,15 @@ export default (function () {
 
     this.parentNode.replaceChild(inputBox, this);
     inputBox.focus();
+  }
+
+  function updateBottomMargin(projectCard) {
+    const heightOfCard = projectCard.offsetHeight;
+    if (heightOfCard != 0)
+      document.documentElement.style.setProperty(
+        "--bottom-margin",
+        `${heightOfCard}px`,
+      );
   }
 
   function dynamicResize() {

@@ -36,6 +36,7 @@
   border-bottom: 0.5px solid var(--borderlines);
   border-right: 0.5px solid var(--borderlines);
   padding: 10px 0;
+  overflow: scroll;
 }
 
 #dashboard__controls {
@@ -63,6 +64,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: scroll;
+  padding-top: 40px;
 }
 
 #workspace__controls {
@@ -153,15 +156,25 @@
 }
 
 /* For Main Content */
-.pDiv {
+.allProj {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 70%;
+}
+
+.pDiv {
   display: flex;
   justify-content: center;
 }
 
 .projectCard {
-  width: 70%;
-  padding: 10px 0;
+  width: 100%;
+  padding: 0 0 50px 0;
+}
+
+#workspace > div:last-child {
+  margin-bottom: calc(90vh - var(--bottom-margin));
 }
 
 .contentTitle {
