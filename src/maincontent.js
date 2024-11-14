@@ -111,15 +111,12 @@ export default (function () {
     for (const [todo, contents] of Object.entries(subProjectObject)) {
       const todoDiv = document.createElement("div");
       todoDiv.classList.add("todo");
-      const todoTitle = document.createElement("h3");
-      todoTitle.dataset.project = projectName.textContent;
-      todoTitle.textContent = todo;
 
-      todoDiv.appendChild(todoTitle);
       for (const [name, value] of Object.entries(contents)) {
         const p = document.createElement("p");
-        p.dataset.project = projectName.textContent;
-        p.dataset.subProject = todoTitle.textContent;
+        p.dataset.project = projectTitle;
+        p.dataset.subProject = subProjectTitle;
+        p.dataset.todo = todo;
         p.textContent = value;
         todoDiv.appendChild(p);
       }
@@ -137,6 +134,7 @@ export default (function () {
     inputBox.dataset.elementType = elementType;
     inputBox.dataset.project = project;
     inputBox.dataset.subProject = subProject;
+    inputBox.dataset.oldText = this.textContent;
     inputBox.addEventListener("focusout", convertToText);
     inputBox.addEventListener("keydown", function (e) {
       if (e.key == "Enter") {
@@ -190,25 +188,28 @@ export default (function () {
     const project = this.dataset.project;
     const subProject = this.dataset.subProject;
     let newName = this.value;
+    if (newName == "") newName = this.dataset.oldText;
 
     const projects = getObject().Projects;
     const replacementText = document.createElement(elementType);
     replacementText.addEventListener("dblclick", changeToInput);
 
     if (subProject != "null") {
-      projects[project][newName] = projects[project][subProject];
-      delete projects[project][subProject];
       replacementText.dataset.elementType = elementType;
       replacementText.dataset.project = project;
       replacementText.dataset.subProject = newName; // changed SubProject Title
-      if (newName == "") newName = subProject;
+      if (newName != this.dataset.oldText) {
+        projects[project][newName] = projects[project][subProject];
+        delete projects[project][subProject];
+      }
     } else {
-      projects[newName] = projects[project];
-      delete projects[project];
       replacementText.dataset.elementType = elementType;
       replacementText.dataset.project = newName; // changed Project Title
       replacementText.dataset.subProject = null;
-      if (newName == "") newName = project;
+      if (newName != this.dataset.oldText) {
+        projects[newName] = projects[project];
+        delete projects[project];
+      }
       const h1Tags = this.parentNode.parentNode.querySelectorAll("h1");
       for (const tag of h1Tags) tag.dataset.project = newName; // Update subprojects project link
     }

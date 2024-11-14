@@ -184,8 +184,7 @@
 
 .todo {
   display: grid;
-  grid-template-columns: 1fr 3fr 6fr 2fr repeat(2, 1fr);
-  grid-template-rows: repeat(auto-fill, 1fr) 80px;
+  grid-template-columns: 3fr 6fr 2fr repeat(2, 1fr);
   align-items: center;
   justify-content: center;
   padding: 5px 0;
