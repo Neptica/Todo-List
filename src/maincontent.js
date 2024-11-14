@@ -47,7 +47,7 @@ export default (function () {
   });
 
   PubSub.subscribe("Name Change", function (nameChange, option) {
-    console.log(option);
+    // console.log(option);
     switch (option) {
       case 1:
         render(currentProject); // Project to Display
@@ -79,42 +79,46 @@ export default (function () {
     const projects = getObject().Projects;
     const contentDiv = document.getElementById("workspace");
     contentDiv.innerHTML = "";
-    console.log(projects);
     for (const [title] of Object.entries(projects)) {
       render(title, null, true);
     }
   });
 
-  function renderTodo(title, subTitle, subProject, allProj) {
+  function renderTodo(
+    projectTitle,
+    subProjectTitle,
+    subProjectObject,
+    allProj,
+  ) {
     // Takes Subproject Names as Arguments
     const workspace = document.getElementById("workspace");
     workspace.appendChild(allProj);
-    console.log(allProj.firstChild.textContent, title, subProject);
+    // console.log(allProj.firstChild.textContent, title, subProject);
     const projectCard = document.createElement("div");
     projectCard.classList.add("projectCard");
     allProj.appendChild(projectCard);
 
     const titleDiv = document.createElement("div");
     titleDiv.classList.add("contentTitle");
-    const projectTitle = document.createElement("h1");
-    projectTitle.addEventListener("dblclick", changeToInput);
-    projectTitle.textContent = subTitle;
-    projectTitle.dataset.project = title;
-    projectTitle.dataset.subProject = subTitle;
+    const projectName = document.createElement("h1");
+    projectName.addEventListener("dblclick", changeToInput);
+    projectName.textContent = subProjectTitle;
+    projectName.dataset.project = projectTitle;
+    projectName.dataset.subProject = subProjectTitle;
 
-    titleDiv.appendChild(projectTitle);
+    titleDiv.appendChild(projectName);
     projectCard.appendChild(titleDiv);
-    for (const [todo, contents] of Object.entries(subProject)) {
+    for (const [todo, contents] of Object.entries(subProjectObject)) {
       const todoDiv = document.createElement("div");
       todoDiv.classList.add("todo");
       const todoTitle = document.createElement("h3");
-      todoTitle.dataset.project = projectTitle.textContent;
+      todoTitle.dataset.project = projectName.textContent;
       todoTitle.textContent = todo;
 
       todoDiv.appendChild(todoTitle);
       for (const [name, value] of Object.entries(contents)) {
         const p = document.createElement("p");
-        p.dataset.project = projectTitle.textContent;
+        p.dataset.project = projectName.textContent;
         p.dataset.subProject = todoTitle.textContent;
         p.textContent = value;
         todoDiv.appendChild(p);
@@ -185,7 +189,34 @@ export default (function () {
     const elementType = this.dataset.elementType;
     const project = this.dataset.project;
     const subProject = this.dataset.subProject;
-    const title = this.value;
-    console.log(elementType, project, subProject, title);
+    let newName = this.value;
+
+    const projects = getObject().Projects;
+    const replacementText = document.createElement(elementType);
+    replacementText.addEventListener("dblclick", changeToInput);
+
+    if (subProject != "null") {
+      projects[project][newName] = projects[project][subProject];
+      delete projects[project][subProject];
+      replacementText.dataset.elementType = elementType;
+      replacementText.dataset.project = project;
+      replacementText.dataset.subProject = newName; // changed SubProject Title
+      if (newName == "") newName = subProject;
+    } else {
+      projects[newName] = projects[project];
+      delete projects[project];
+      replacementText.dataset.elementType = elementType;
+      replacementText.dataset.project = newName; // changed Project Title
+      replacementText.dataset.subProject = null;
+      if (newName == "") newName = project;
+      const h1Tags = this.parentNode.parentNode.querySelectorAll("h1");
+      for (const tag of h1Tags) tag.dataset.project = newName; // Update subprojects project link
+    }
+
+    replacementText.textContent = newName;
+
+    setObject(projects);
+    PubSub.publish("Project Change");
+    this.parentNode.replaceChild(replacementText, this);
   }
 });

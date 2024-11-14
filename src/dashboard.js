@@ -5,17 +5,20 @@ import close from "./svg/close-circle.svg";
 import done from "./svg/done.png";
 
 export default (function () {
-  let projects = getObject().Projects;
   let timer = 0;
   let delay = 300;
   let prevent = false;
 
   function init() {
+    let projects = getObject().Projects;
     if (projects) renderDashboard();
     renderTaskDash();
   }
 
+  PubSub.subscribe("Project Change", renderDashboard);
+
   function renderDashboard() {
+    let projects = getObject().Projects;
     const dash = document.getElementById("dashboard");
     dash.innerHTML = "";
 
@@ -165,6 +168,7 @@ export default (function () {
   }
 
   function convertBack() {
+    let projects = getObject().Projects;
     let currentTitle = this.value;
 
     // Either Delete the New SubProject or Return the Subproject to how it was.
@@ -274,6 +278,7 @@ export default (function () {
   }
 
   function newProject() {
+    let projects = getObject().Projects;
     const dash = document.getElementById("dashboard");
     const projDiv = document.createElement("div");
 
@@ -326,6 +331,7 @@ export default (function () {
       tag.parentNode.style.backgroundColor = "inherit";
     }
     titleCard.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+    // TODO: Why is this this way
     // dash.appendChild(projDiv);
 
     renderDashboard();
@@ -368,6 +374,7 @@ export default (function () {
   }
 
   function removeProject() {
+    let projects = getObject().Projects;
     const projDiv = this.parentNode.parentNode; // projDiv > TitleCard > img
     const nameOfProject = this.previousSibling.textContent;
     delete projects[nameOfProject];
