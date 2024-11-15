@@ -113,12 +113,41 @@ export default (function () {
       todoDiv.classList.add("todo");
 
       for (const [name, value] of Object.entries(contents)) {
-        const p = document.createElement("p");
-        p.dataset.project = projectTitle;
-        p.dataset.subProject = subProjectTitle;
-        p.dataset.todo = todo;
-        p.textContent = value;
-        todoDiv.appendChild(p);
+        if (name === "done") {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.dataset.project = projectTitle;
+          checkbox.dataset.subProject = subProjectTitle;
+          checkbox.dataset.todo = todo;
+          checkbox.checked = value;
+          checkbox.addEventListener("click", updateCheckbox);
+          checkbox.classList.add("checkbox");
+          todoDiv.appendChild(checkbox);
+        } else if (name === "priority") {
+          const dropDown = document.createElement("select");
+          dropDown.dataset.project = projectTitle;
+          dropDown.dataset.subProject = subProjectTitle;
+          dropDown.dataset.todo = todo;
+          todoDiv.appendChild(dropDown);
+          dropDown.addEventListener("change", changePriority);
+          dropDown.classList.add("priority-dropdown");
+
+          const values = ["High", "Medium", "Low"];
+          for (let i = 0; i < values.length; i++) {
+            const option = document.createElement("option");
+            option.textContent = values[i];
+            option.value = values[i];
+            if (values[i] === value) option.selected = true;
+            dropDown.appendChild(option);
+          }
+        } else {
+          const p = document.createElement("p");
+          p.dataset.project = projectTitle;
+          p.dataset.subProject = subProjectTitle;
+          p.dataset.todo = todo;
+          p.textContent = value;
+          todoDiv.appendChild(p);
+        }
       }
       projectCard.appendChild(todoDiv);
     }
@@ -219,5 +248,26 @@ export default (function () {
     setObject(projects);
     PubSub.publish("Project Change", newName); // newName to make sure proper element is selected
     this.parentNode.replaceChild(replacementText, this);
+  }
+
+  function updateCheckbox() {
+    const project = this.dataset.project;
+    const subProject = this.dataset.subProject;
+    const todo = this.dataset.todo;
+    const value = this.checked;
+    const projectsObject = getObject().Projects;
+    projectsObject[project][subProject][todo].done = value;
+    setObject(projectsObject);
+  }
+
+  function changePriority() {
+    const project = this.dataset.project;
+    const subProject = this.dataset.subProject;
+    const todo = this.dataset.todo;
+    const value = this.value;
+
+    const projectsObject = getObject().Projects;
+    projectsObject[project][subProject][todo].priority = value;
+    setObject(projectsObject);
   }
 });
