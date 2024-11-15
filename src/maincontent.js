@@ -168,7 +168,9 @@ export default (function () {
           p.dataset.project = projectTitle;
           p.dataset.subProject = subProjectTitle;
           p.dataset.todo = todo;
+          p.dataset.property = name;
           p.textContent = value;
+          p.addEventListener("dblclick", changeToInput);
           todoDiv.appendChild(p);
         }
       }
@@ -191,9 +193,13 @@ export default (function () {
     const elementType = this.nodeName;
     const project = this.dataset.project;
     const subProject = this.dataset.subProject;
+    const todo = this.dataset.todo;
+    const property = this.dataset.property;
     inputBox.dataset.elementType = elementType;
     inputBox.dataset.project = project;
     inputBox.dataset.subProject = subProject;
+    inputBox.dataset.todo = todo;
+    inputBox.dataset.property = property;
     inputBox.dataset.oldText = this.textContent;
     inputBox.addEventListener("focusout", convertToText);
     inputBox.addEventListener("keydown", function (e) {
@@ -247,6 +253,8 @@ export default (function () {
     const elementType = this.dataset.elementType;
     const project = this.dataset.project;
     const subProject = this.dataset.subProject;
+    const todo = this.dataset.todo;
+    const property = this.dataset.property;
     let newName = this.value;
     if (newName == "") newName = this.dataset.oldText;
 
@@ -254,18 +262,20 @@ export default (function () {
     const replacementText = document.createElement(elementType);
     replacementText.addEventListener("dblclick", changeToInput);
 
-    if (subProject != "null") {
-      replacementText.dataset.elementType = elementType;
-      replacementText.dataset.project = project;
-      replacementText.dataset.subProject = newName; // changed SubProject Title
+    replacementText.dataset.elementType = elementType;
+    replacementText.dataset.project = project;
+    replacementText.dataset.subProject = newName; // changed SubProject Title
+    replacementText.dataset.todo = todo;
+    replacementText.dataset.property = property;
+
+    if (newName != this.dataset.oldText) {
+      projects[project][subProject][todo][property] = newName;
+    } else if (subProject != "null") {
       if (newName != this.dataset.oldText) {
         projects[project][newName] = projects[project][subProject];
         delete projects[project][subProject];
       }
     } else {
-      replacementText.dataset.elementType = elementType;
-      replacementText.dataset.project = newName; // changed Project Title
-      replacementText.dataset.subProject = null;
       if (newName != this.dataset.oldText) {
         projects[newName] = projects[project];
         delete projects[project];
@@ -277,6 +287,7 @@ export default (function () {
     replacementText.textContent = newName;
 
     setObject(projects);
+    console.log(getObject().Projects);
     PubSub.publish("Project Change", newName); // newName to make sure proper element is selected
     this.parentNode.replaceChild(replacementText, this);
   }
