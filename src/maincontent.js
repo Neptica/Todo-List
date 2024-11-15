@@ -278,17 +278,21 @@ export default (function () {
     replacementText.dataset.todo = todo;
     replacementText.dataset.property = property;
 
+    let write = true;
     if (todo != "undefined" && newName != this.dataset.oldText) {
       projects[project][subProject][todo][property] = newName;
-    } else if (subProject != "undefined") {
+    } else if (
+      subProject != "undefined" &&
+      typeof projects[project][newName] == "undefined"
+    ) {
       if (newName != this.dataset.oldText) {
         projects[project][newName] = projects[project][subProject];
         delete projects[project][subProject];
         const h1Tags =
-          this.parentNode.parentNode.querySelectorAll(" p, input, select");
+          this.parentNode.parentNode.querySelectorAll("p, input, select");
         for (const tag of h1Tags) tag.dataset.project = newName; // Update todo links
       }
-    } else {
+    } else if (typeof projects[newName] == "undefined") {
       if (newName != this.dataset.oldText) {
         projects[newName] = projects[project];
         delete projects[project];
@@ -297,13 +301,17 @@ export default (function () {
         "h1, p, input, select",
       );
       for (const tag of h1Tags) tag.dataset.project = newName; // Update subprojects project link
+    } else {
+      replacementText.textContent = this.dataset.oldText;
+      write = false;
     }
 
-    replacementText.textContent = newName;
-
-    setObject(projects);
-    console.log(getObject().Projects);
-    PubSub.publish("Project Change", newName); // newName to make sure proper element is selected
+    if (write) {
+      replacementText.textContent = newName;
+      setObject(projects);
+      console.log(getObject().Projects);
+      PubSub.publish("Project Change", newName); // newName to make sure proper element is selected
+    }
     this.parentNode.replaceChild(replacementText, this);
   }
 
