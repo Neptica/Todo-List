@@ -163,6 +163,17 @@ export default (function () {
             if (values[i] === value) option.selected = true;
             dropDown.appendChild(option);
           }
+        } else if (name === "date") {
+          const date = document.createElement("input");
+          date.type = "date";
+          date.dataset.project = projectTitle;
+          date.dataset.subProject = subProjectTitle;
+          date.dataset.todo = todo;
+          date.dataset.property = name;
+          date.value = value;
+          date.classList.add("date");
+          date.addEventListener("blur", updateDate);
+          todoDiv.appendChild(date);
         } else {
           const p = document.createElement("p");
           p.dataset.project = projectTitle;
@@ -364,5 +375,16 @@ export default (function () {
     console.log(projectsObject[project][subProject][todo]);
     setObject(projectsObject);
     this.parentNode.parentNode.removeChild(this.parentNode);
+  }
+
+  function updateDate() {
+    const project = this.dataset.project;
+    const subProject = this.dataset.subProject;
+    const todo = this.dataset.todo;
+    const value = this.value;
+
+    const projectsObject = getObject().Projects;
+    projectsObject[project][subProject][todo].date = value;
+    setObject(projectsObject);
   }
 });
