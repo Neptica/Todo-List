@@ -2,15 +2,23 @@ import PubSub, { getObject, setObject } from "./index.js";
 
 export default (function () {
   // Takes the Object being operated on, the project name, and the subtitle name as arguments, from which paths will be constructed
+  let isHome = null;
   let currentProject = null;
   let currentSubProject = null;
 
-  function render(title, subtitle = null, restartWorkspace = false) {
+  function render(title, subtitle = null, keepWorkspace = false) {
     const contentDiv = document.getElementById("workspace");
     const allProjCard = document.createElement("div");
     allProjCard.classList.add("allProj");
 
-    if (!restartWorkspace) contentDiv.innerHTML = "";
+    if (!keepWorkspace) {
+      contentDiv.innerHTML = "";
+      isHome = null;
+    } else {
+      isHome = true;
+      currentProject = null;
+      currentSubProject = null;
+    }
     if (!getObject().Projects[title]) return;
     let workingObject = getObject().Projects[title]; // initialize
 
@@ -24,7 +32,7 @@ export default (function () {
         allProjCard,
       );
     } else {
-      currentProject = title;
+      if (!isHome) currentProject = title;
       currentSubProject = null;
       const projDiv = document.createElement("div");
       projDiv.classList.add("pDiv");
@@ -76,13 +84,28 @@ export default (function () {
   });
 
   PubSub.subscribe("Home Clicked", () => {
+    renderHome();
+  });
+
+  PubSub.subscribe("New Todo", function () {
+    const contentDiv = document.getElementById("workspace");
+    const distFromTop = contentDiv.scrollTop;
+    if (isHome) {
+      renderHome();
+    } else {
+      render(currentProject, currentSubProject);
+    }
+    contentDiv.scrollTop = distFromTop;
+  });
+
+  function renderHome() {
     const projects = getObject().Projects;
     const contentDiv = document.getElementById("workspace");
     contentDiv.innerHTML = "";
     for (const [title] of Object.entries(projects)) {
       render(title, null, true);
     }
-  });
+  }
 
   function renderTodo(
     projectTitle,
@@ -132,7 +155,7 @@ export default (function () {
           dropDown.addEventListener("change", changePriority);
           dropDown.classList.add("priority-dropdown");
 
-          const values = ["High", "Medium", "Low"];
+          const values = ["None", "High", "Medium", "Low"];
           for (let i = 0; i < values.length; i++) {
             const option = document.createElement("option");
             option.textContent = values[i];
@@ -151,6 +174,14 @@ export default (function () {
       }
       projectCard.appendChild(todoDiv);
     }
+    const button = document.createElement("button");
+    button.textContent = "+";
+    button.classList.add("subProjAdd");
+    button.dataset.project = projectTitle;
+    button.dataset.subProject = subProjectTitle;
+    button.addEventListener("click", createNewTodo);
+    projectCard.appendChild(button);
+
     updateBottomMargin(projectCard);
   }
 
@@ -269,5 +300,20 @@ export default (function () {
     const projectsObject = getObject().Projects;
     projectsObject[project][subProject][todo].priority = value;
     setObject(projectsObject);
+  }
+
+  function createNewTodo() {
+    const project = this.dataset.project;
+    const subProject = this.dataset.subProject;
+    const projectsObject = getObject().Projects;
+    projectsObject[project][subProject]["New Todo"] = {
+      title: "Title",
+      description: "Description",
+      date: "2024-11-12",
+      done: false,
+      priority: "None",
+    };
+    setObject(projectsObject);
+    PubSub.publish("New Todo");
   }
 });
