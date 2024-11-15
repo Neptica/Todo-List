@@ -1,4 +1,5 @@
 import PubSub, { getObject, setObject } from "./index.js";
+import close from "./svg/close-circle.svg";
 
 export default (function () {
   // Takes the Object being operated on, the project name, and the subtitle name as arguments, from which paths will be constructed
@@ -174,6 +175,14 @@ export default (function () {
           todoDiv.appendChild(p);
         }
       }
+      const deleteButton = document.createElement("img");
+      deleteButton.src = close;
+      deleteButton.style.cssText = "width: 20px; height: 20px;";
+      deleteButton.dataset.project = projectTitle;
+      deleteButton.dataset.subProject = subProjectTitle;
+      deleteButton.dataset.todo = todo;
+      deleteButton.addEventListener("click", removeTodo);
+      todoDiv.appendChild(deleteButton);
       projectCard.appendChild(todoDiv);
     }
     const button = document.createElement("button");
@@ -326,5 +335,16 @@ export default (function () {
     };
     setObject(projectsObject);
     PubSub.publish("New Todo");
+  }
+
+  function removeTodo() {
+    const project = this.dataset.project;
+    const subProject = this.dataset.subProject;
+    const todo = this.dataset.todo;
+    const projectsObject = getObject().Projects;
+    delete projectsObject[project][subProject][todo];
+    console.log(projectsObject[project][subProject][todo]);
+    setObject(projectsObject);
+    this.parentNode.parentNode.removeChild(this.parentNode);
   }
 });
