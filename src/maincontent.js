@@ -266,23 +266,24 @@ export default (function () {
     let newName = this.value;
     if (newName == "") newName = this.dataset.oldText;
 
-    // TODO: Check for name collisions
-
     const projects = getObject().Projects;
     const replacementText = document.createElement(elementType);
     replacementText.addEventListener("dblclick", changeToInput);
 
+    // will edit the other later
     replacementText.dataset.elementType = elementType;
     replacementText.dataset.project = project;
-    replacementText.dataset.subProject = newName; // changed SubProject Title
+    replacementText.dataset.subProject = subProject;
     replacementText.dataset.todo = todo;
     replacementText.dataset.property = property;
 
     let write = true;
+    console.log(subProject, this.dataset.oldText);
     if (todo != "undefined" && newName != this.dataset.oldText) {
       projects[project][subProject][todo][property] = newName;
     } else if (
       subProject != "undefined" &&
+      subProject == this.dataset.oldText &&
       typeof projects[project][newName] == "undefined"
     ) {
       if (newName != this.dataset.oldText) {
@@ -292,6 +293,8 @@ export default (function () {
           this.parentNode.parentNode.querySelectorAll("p, input, select");
         for (const tag of h1Tags) tag.dataset.project = newName; // Update todo links
       }
+      replacementText.dataset.project = project;
+      replacementText.dataset.subProject = newName;
     } else if (typeof projects[newName] == "undefined") {
       if (newName != this.dataset.oldText) {
         projects[newName] = projects[project];
@@ -301,6 +304,7 @@ export default (function () {
         "h1, p, input, select",
       );
       for (const tag of h1Tags) tag.dataset.project = newName; // Update subprojects project link
+      replacementText.dataset.project = newName;
     } else {
       replacementText.textContent = this.dataset.oldText;
       write = false;
@@ -310,7 +314,7 @@ export default (function () {
       replacementText.textContent = newName;
       setObject(projects);
       console.log(getObject().Projects);
-      PubSub.publish("Project Change", newName); // newName to make sure proper element is selected
+      PubSub.publish("Project Change", newName); // newName to make sure proper element is selected if Home isn't
     }
     this.parentNode.replaceChild(replacementText, this);
   }
