@@ -41,7 +41,6 @@ export default (function () {
       projName.addEventListener("dblclick", changeToInput);
       projName.textContent = title;
       projName.dataset.project = title;
-      projName.dataset.subProject = null;
       projDiv.appendChild(projName);
       allProjCard.appendChild(projDiv);
       for (const [subProject, _] of Object.entries(workingObject)) {
@@ -267,6 +266,8 @@ export default (function () {
     let newName = this.value;
     if (newName == "") newName = this.dataset.oldText;
 
+    // TODO: Check for name collisions
+
     const projects = getObject().Projects;
     const replacementText = document.createElement(elementType);
     replacementText.addEventListener("dblclick", changeToInput);
@@ -277,19 +278,24 @@ export default (function () {
     replacementText.dataset.todo = todo;
     replacementText.dataset.property = property;
 
-    if (newName != this.dataset.oldText) {
+    if (todo != "undefined" && newName != this.dataset.oldText) {
       projects[project][subProject][todo][property] = newName;
-    } else if (subProject != "null") {
+    } else if (subProject != "undefined") {
       if (newName != this.dataset.oldText) {
         projects[project][newName] = projects[project][subProject];
         delete projects[project][subProject];
+        const h1Tags =
+          this.parentNode.parentNode.querySelectorAll(" p, input, select");
+        for (const tag of h1Tags) tag.dataset.project = newName; // Update todo links
       }
     } else {
       if (newName != this.dataset.oldText) {
         projects[newName] = projects[project];
         delete projects[project];
       }
-      const h1Tags = this.parentNode.parentNode.querySelectorAll("h1");
+      const h1Tags = this.parentNode.parentNode.querySelectorAll(
+        "h1, p, input, select",
+      );
       for (const tag of h1Tags) tag.dataset.project = newName; // Update subprojects project link
     }
 
